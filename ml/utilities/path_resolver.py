@@ -16,11 +16,11 @@ def make_directories():
     os.makedirs(DATA_TEST_PATH, exist_ok=True)
 
 
-def resolve_path(path_func):
+def resolve_path(path_or_func):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            path = path_func()
+            path = path_or_func() if callable(path_or_func) else path_or_func
             current_dir = os.getcwd()
 
             os.makedirs(path, exist_ok=True)

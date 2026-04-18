@@ -11,17 +11,22 @@ class ModelLineage:
 
     def __init__(self, model_class: ModelBase) -> None:
         self.model_metadata = {}
+        self.path: Path | None = None
         ModelLineage.MODEL_NAME = type(model_class).__name__
 
     def add_metadata_entries(self, **kwargs):
         for key, value in kwargs.items():
             self.model_metadata[key] = value
 
-    @resolve_path(lambda: get_model_lineage_path())
     def export(self):
-        name = Path(os.getcwd()).name
-        with open(f"{name}_metadata.json", "w") as f:
-            json.dump(self.model_metadata, f, default=_serialize_estimator)
+        self.path = get_model_lineage_path().resolve()
+
+        @resolve_path(self.path)
+        def _write():
+            with open(f"{self.path.name}_metadata.json", "w") as f:
+                json.dump(self.model_metadata, f, default=_serialize_estimator, indent=2)
+
+        _write()
 
 
 def _serialize_estimator(obj):

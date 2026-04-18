@@ -1,6 +1,7 @@
 *.joblib
 outputs/
 data/
+artifacts/
 resources/
 .venv
 .claude
