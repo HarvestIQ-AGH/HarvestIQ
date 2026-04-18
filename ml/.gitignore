@@ -1,0 +1,7 @@
+*.joblib
+outputs/
+data/
+resources/
+.venv
+.claude
+__pycache__/
