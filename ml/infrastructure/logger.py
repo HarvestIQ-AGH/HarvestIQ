@@ -11,6 +11,8 @@ def _configure_default_logger():
 
     root = logging.getLogger(_ROOT_LOGGER_NAME)
 
+    root.setLevel(logging.DEBUG)
+
     if not root.handlers:
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(logging.DEBUG)

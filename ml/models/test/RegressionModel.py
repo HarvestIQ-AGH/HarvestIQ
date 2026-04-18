@@ -19,8 +19,11 @@ from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from infrastructure.logger import logger
 from models.ModelBase import ModelBase
 from models.ModelLineage import ModelLineage
+from models.train_me import train_me
+from utilities.path_resolver import resolve_path
 
 
+@train_me
 class RegressionModel(ModelBase):
     def __init__(self, data_engine) -> None:
         super().__init__(data_engine)
@@ -98,10 +101,14 @@ class RegressionModel(ModelBase):
             X_train, self._y_train
         )
 
-        joblib.dump(self._column_transformer, "ames_transformer.joblib")
-        joblib.dump(self._huber_reg, "price_estimator.joblib")
-        joblib.dump(self._q_low, "low_price_estimator.joblib")
-        joblib.dump(self._q_high, "high_price_estimator.joblib")
+        @resolve_path(self.model_lineage.path)
+        def _save():
+            joblib.dump(self._column_transformer, "ames_transformer.joblib")
+            joblib.dump(self._huber_reg, "price_estimator.joblib")
+            joblib.dump(self._q_low, "low_price_estimator.joblib")
+            joblib.dump(self._q_high, "high_price_estimator.joblib")
+
+        _save()
 
     def evaluate(self):
         X_test = self._column_transformer.transform(self._X_test_raw)
