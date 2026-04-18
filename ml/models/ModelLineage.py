@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from models.ModelBase import ModelBase
-from utilities.path_resolver import OUTPUT_TEST_PATH, resolve_path
+from utilities.path_resolver import ARTIFACTS_TEST_PATH, resolve_path
 
 
 class ModelLineage:
@@ -33,7 +33,7 @@ def _serialize_estimator(obj):
 def get_model_version():
     assert ModelLineage.MODEL_NAME is not None
 
-    model_dir = OUTPUT_TEST_PATH / ModelLineage.MODEL_NAME
+    model_dir = ARTIFACTS_TEST_PATH / ModelLineage.MODEL_NAME
     assert model_dir.exists() is True
 
     latest = max(
@@ -54,6 +54,6 @@ def get_model_lineage_name():
 
 
 def get_model_lineage_path():
-    model_dir = OUTPUT_TEST_PATH / ModelLineage.MODEL_NAME
+    model_dir = ARTIFACTS_TEST_PATH / ModelLineage.MODEL_NAME
     os.makedirs(model_dir, exist_ok=True)
     return model_dir / Path(get_model_lineage_name())

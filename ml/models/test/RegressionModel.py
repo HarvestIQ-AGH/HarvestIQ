@@ -16,6 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
+from infrastructure.logger import logger
 from models.ModelBase import ModelBase
 from models.ModelLineage import ModelLineage
 
@@ -123,18 +124,18 @@ class RegressionModel(ModelBase):
             yp_train = np.expm1(y_pred_train)
             yp_test = np.expm1(y_pred_test)
 
-            print(f"\n--- {name} ---")
+            logger.info(f"\n--- {name} ---")
             if q is None:
-                print(
+                logger.info(
                     f"  RMSE  train={root_mean_squared_error(yt_train, yp_train):,.0f}  test={root_mean_squared_error(yt_test, yp_test):,.0f}"
                 )
-                print(
+                logger.info(
                     f"  MAE   train={mean_absolute_error(yt_train, yp_train):,.0f}  test={mean_absolute_error(yt_test, yp_test):,.0f}"
                 )
             else:
                 d2_train = d2_pinball_score(yt_train, yp_train, alpha=q)
                 d2_test = d2_pinball_score(yt_test, yp_test, alpha=q)
-                print(f"  D² pinball (q={q})  train={d2_train:.4f}  test={d2_test:.4f}")
+                logger.info(f"  D² pinball (q={q})  train={d2_train:.4f}  test={d2_test:.4f}")
 
     def _replace_na(self, df):
         def replace_na(df: pd.DataFrame, col: str, value) -> None:

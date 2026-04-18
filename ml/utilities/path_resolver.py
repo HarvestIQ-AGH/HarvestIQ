@@ -2,16 +2,16 @@ import os
 from functools import wraps
 from pathlib import Path
 
-OUTPUT_DEFAULT_PATH = Path("outputs")
-OUTPUT_TEST_PATH = OUTPUT_DEFAULT_PATH / Path("test")
+ARTIFACTS_DEFAULT_PATH = Path("artifacts")
+ARTIFACTS_TEST_PATH = ARTIFACTS_DEFAULT_PATH / Path("test")
 
 DATA_DEFAULT_PATH = Path("data")
 DATA_TEST_PATH = DATA_DEFAULT_PATH / Path("test")
 
 
 def make_directories():
-    os.makedirs(OUTPUT_DEFAULT_PATH, exist_ok=True)
-    os.makedirs(OUTPUT_TEST_PATH, exist_ok=True)
+    os.makedirs(ARTIFACTS_DEFAULT_PATH, exist_ok=True)
+    os.makedirs(ARTIFACTS_TEST_PATH, exist_ok=True)
     os.makedirs(DATA_DEFAULT_PATH, exist_ok=True)
     os.makedirs(DATA_TEST_PATH, exist_ok=True)
 
