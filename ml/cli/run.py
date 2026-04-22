@@ -1,21 +1,14 @@
-from pathlib import Path
-
-from infrastructure.DataEngine import DataEngine
+from infrastructure.data_engine import DataEngine
+from infrastructure.local.local_config import LocalConfiguration
 from infrastructure.logger import logger
 from infrastructure.model_loader import load_model_class
-from utilities.path_resolver import DATA_DEFAULT_PATH, DATA_TEST_PATH
-
-_MODELS_ROOT = Path("models")
-_MODELS_TEST_ROOT = _MODELS_ROOT / "test"
 
 
-def run(model_name: str, dataset: str, test: bool = False):
-    data_root = DATA_TEST_PATH if test else DATA_DEFAULT_PATH
-    models_root = (_MODELS_TEST_ROOT if test else _MODELS_ROOT).resolve()
-    dataset_path = (data_root / dataset).resolve()
+def run(model_name: str, config: LocalConfiguration):
+    models_root = config.paths.models.resolve()
 
     model_cls = load_model_class(model_name, models_root)
-    model = model_cls(DataEngine(path=str(dataset_path)))
+    model = model_cls(DataEngine(), config)
 
     logger.info("Cleaning data...")
     model.clean_data()
