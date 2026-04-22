@@ -5,14 +5,9 @@ import sklearn
 
 warnings.filterwarnings("ignore", category=UserWarning, module=r"feature_engine\..*")
 
-from cli import clean
-from cli.download_test_data import download_test_data
-from cli.from_pretrained import from_pretrained
-from cli.run import run
-from cli.visualize import visualize
-from infrastructure.local.local_config import LocalConfiguration
-from infrastructure.local.mode import Mode
-from utilities.path_resolver import make_directories
+from cli import clean, download_test_data, from_pretrained, run, visualize
+from infrastructure.local import LocalConfiguration, Mode
+from utilities import make_directories
 
 sklearn.set_config(transform_output="pandas")
 make_directories()

@@ -1,11 +1,10 @@
 import pytest
 
-from infrastructure.model_loader import load_model_class
+from infrastructure import load_model_class
 
 
 _STUB = """\
-from models.train_me import train_me
-from models.model_base import ModelBase
+from models import ModelBase, train_me
 
 @train_me
 class {name}(ModelBase):
@@ -17,7 +16,7 @@ class {name}(ModelBase):
 """
 
 _NO_DECORATOR = """\
-from models.model_base import ModelBase
+from models import ModelBase
 
 class PlainModel(ModelBase):
     def clean_data(self): pass
@@ -28,8 +27,7 @@ class PlainModel(ModelBase):
 """
 
 _TWO_DECORATED = """\
-from models.train_me import train_me
-from models.model_base import ModelBase
+from models import ModelBase, train_me
 
 @train_me
 class ModelA(ModelBase):
@@ -38,6 +36,7 @@ class ModelA(ModelBase):
     def train(self): pass
     def evaluate(self): pass
     def load_pretrained(self, path): pass
+
 
 @train_me
 class ModelB(ModelBase):

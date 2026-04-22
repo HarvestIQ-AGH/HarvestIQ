@@ -19,12 +19,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
-from infrastructure.local.local_config import LocalConfiguration
-from infrastructure.logger import logger
-from models.model_base import ModelBase
-from models.model_lineage import ModelLineage
-from models.train_me import train_me
-from utilities.path_resolver import resolve_path
+from infrastructure import logger
+from infrastructure.local import LocalConfiguration
+from ..model_base import ModelBase
+from ..model_lineage import ModelLineage
+from ..train_me import train_me
+from utilities import resolve_path
 
 
 @train_me

@@ -1,7 +1,5 @@
-from infrastructure.data_engine import DataEngine
-from infrastructure.local.local_config import LocalConfiguration
-from infrastructure.model_executor import ModelExecutor, Stage
-from infrastructure.model_loader import load_model_class
+from infrastructure import DataEngine, ModelExecutor, Stage, load_model_class
+from infrastructure.local import LocalConfiguration
 
 
 def run(model_name: str, config: LocalConfiguration, stop_stage: int = Stage.TRAINING):

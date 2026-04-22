@@ -6,9 +6,8 @@ import types
 import pytest
 import sklearn
 
-from infrastructure.local.local_config import TEST_PATHS
-from infrastructure.local.mode import Mode
-from models.model_lineage import ModelLineage
+from infrastructure.local import TEST_PATHS, Mode
+from models import ModelLineage
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -37,7 +36,7 @@ def isolated_config(tmp_path):
 
 @pytest.fixture
 def real_test_config():
-    from infrastructure.local.local_config import LocalConfiguration
+    from infrastructure.local import LocalConfiguration
     return LocalConfiguration(Mode.TEST)
 
 
@@ -45,8 +44,7 @@ def real_test_config():
 def regression_model_trained(isolated_config):
     if not (isolated_config.paths.data / "ames.csv").exists():
         pytest.skip("data/test/ames.csv not found — run --download-data first")
-    from infrastructure.data_engine import DataEngine
-    from infrastructure.model_executor import ModelExecutor, Stage
+    from infrastructure import DataEngine, ModelExecutor, Stage
     from models.test.RegressionModel import RegressionModel
     model = RegressionModel(DataEngine(), isolated_config)
     ModelExecutor(model).run(Stage.TRAINING)

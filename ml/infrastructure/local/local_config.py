@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from infrastructure.local.mode import Mode
+from .mode import Mode
 
 
 @dataclass(frozen=True)

@@ -3,8 +3,7 @@ from pathlib import Path
 import pytest
 from sklearn.compose import ColumnTransformer
 
-from infrastructure.data_engine import DataEngine
-from infrastructure.model_executor import ModelExecutor, Stage
+from infrastructure import DataEngine, ModelExecutor, Stage
 from models.test.RegressionModel import RegressionModel
 
 pytestmark = pytest.mark.slow

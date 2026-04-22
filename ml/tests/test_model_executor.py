@@ -1,8 +1,7 @@
 import pytest
 
-from infrastructure.data_engine import DataEngine
-from infrastructure.model_executor import ModelExecutor, Stage
-from models.model_base import ModelBase
+from infrastructure import DataEngine, ModelExecutor, Stage
+from models import ModelBase
 
 
 class RecordingStubModel(ModelBase):

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 from infrastructure.data_engine import DataEngine
-from infrastructure.local.local_config import LocalConfiguration
+from infrastructure.local import LocalConfiguration
 
 
 class ModelBase(ABC):

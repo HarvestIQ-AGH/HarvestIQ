@@ -4,8 +4,8 @@ import tempfile
 import webbrowser
 from pathlib import Path
 
-from infrastructure.local.local_config import LocalConfiguration
-from infrastructure.logger import logger
+from infrastructure import logger
+from infrastructure.local import LocalConfiguration
 
 
 def visualize(model_name: str, config: LocalConfiguration) -> None:

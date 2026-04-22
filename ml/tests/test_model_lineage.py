@@ -1,6 +1,6 @@
 import json
 
-from models.model_lineage import ModelLineage
+from models import ModelLineage
 
 
 class FakeModel:

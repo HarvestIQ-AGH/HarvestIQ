@@ -3,9 +3,9 @@ from pathlib import Path
 
 import requests
 
-from infrastructure.local.local_config import TEST_PATHS
-from infrastructure.logger import logger
-from utilities.path_resolver import resolve_path
+from infrastructure import logger
+from infrastructure.local import TEST_PATHS
+from utilities import resolve_path
 
 _AMES_URL = "https://www.openintro.org/book/statdata/ames.csv"
 _AMES_FILE = "ames.csv"
