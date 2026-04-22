@@ -10,12 +10,22 @@ class ModelBase(ABC):
         self.data_engine = data_engine
         self.config = config
 
+    @property
+    def _analysis_path(self) -> Path:
+        return self.config.paths.artifacts / type(self).__name__ / "analysis"
+
     @abstractmethod
     def clean_data(self):
         pass
 
+    def analyze_data(self) -> None:
+        pass
+
     @abstractmethod
     def feature_engineeeing(self):
+        pass
+
+    def analyze_features(self) -> None:
         pass
 
     @abstractmethod

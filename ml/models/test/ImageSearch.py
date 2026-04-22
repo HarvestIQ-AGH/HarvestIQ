@@ -1,9 +1,11 @@
 import joblib
 import json
+import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 import pandas as pd
 from PIL import Image
+from sklearn.decomposition import PCA
 from pynndescent import NNDescent
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
@@ -32,6 +34,67 @@ class ImageSearch(ModelBase, LoggerMixin):
         images_root = self.config.paths.data / "images" / "small"
         self._image_paths = images_root.as_posix() + "/" + df["path"].astype(str)
         self.logger.info(f"Found {len(self._image_paths)} images after filtering.")
+
+    def analyze_data(self) -> None:
+        heights, widths = [], []
+        for p in self._image_paths.iloc[:500]:
+            try:
+                with Image.open(p) as img:
+                    w, h = img.size
+                widths.append(w)
+                heights.append(h)
+            except Exception:
+                continue
+        analysis_raw_path = self._analysis_path / "raw"
+
+        @resolve_path(lambda: analysis_raw_path)
+        def _save():
+            fig, ax = plt.subplots(figsize=(8, 5))
+            ax.hist(heights, bins=40, color="steelblue", edgecolor="white")
+            ax.set_title(f"Image height distribution (sample n={len(heights)})")
+            ax.set_xlabel("Height (px)")
+            fig.tight_layout()
+            fig.savefig("image_height_distribution.png", dpi=150)
+            plt.close(fig)
+
+            fig, ax = plt.subplots(figsize=(8, 5))
+            ax.hist(widths, bins=40, color="darkorange", edgecolor="white")
+            ax.set_title(f"Image width distribution (sample n={len(widths)})")
+            ax.set_xlabel("Width (px)")
+            fig.tight_layout()
+            fig.savefig("image_width_distribution.png", dpi=150)
+            plt.close(fig)
+
+            fig, ax = plt.subplots(figsize=(4, 4))
+            ax.bar(["Filtered images"], [len(self._image_paths)], color="mediumseagreen")
+            ax.set_title("Image count after filtering (h≥1000, w≥1000)")
+            ax.set_ylabel("Count")
+            fig.tight_layout()
+            fig.savefig("image_count.png", dpi=150)
+            plt.close(fig)
+
+        _save()
+        self.logger.info("analyze_data: saved 3 plots.")
+
+    def analyze_features(self) -> None:
+        pca = PCA(n_components=2, random_state=0)
+        coords = pca.fit_transform(self._embeddings)
+        explained = pca.explained_variance_ratio_.sum()
+        analysis_features_path = self._analysis_path / "features"
+
+        @resolve_path(lambda: analysis_features_path)
+        def _save():
+            fig, ax = plt.subplots(figsize=(9, 7))
+            ax.scatter(coords[:, 0], coords[:, 1], s=4, alpha=0.4, c="royalblue", rasterized=True)
+            ax.set_title(f"Embedding PCA 2D scatter (n={len(coords)}, explained variance: {explained:.1%})")
+            ax.set_xlabel("PC1")
+            ax.set_ylabel("PC2")
+            fig.tight_layout()
+            fig.savefig("embedding_pca_scatter.png", dpi=150)
+            plt.close(fig)
+
+        _save()
+        self.logger.info("analyze_features: saved 1 plot.")
 
     def feature_engineeeing(self):
         self._embeddings = self._vectorize_images(self._image_paths)
