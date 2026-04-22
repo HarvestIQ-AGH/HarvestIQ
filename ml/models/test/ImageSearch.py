@@ -1,21 +1,23 @@
-import joblib
 import json
+from pathlib import Path
+
+import joblib
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 import pandas as pd
+from mpl_toolkits.axes_grid1 import ImageGrid
 from PIL import Image
-from sklearn.decomposition import PCA
 from pynndescent import NNDescent
 from sentence_transformers import SentenceTransformer
+from sklearn.decomposition import PCA
 from tqdm import tqdm
 
 from infrastructure import DataEngine, LoggerMixin
 from infrastructure.local import LocalConfiguration
-from ..model_base import ModelBase
-from ..model_lineage import ModelLineage
-from ..train_me import train_me
+from models import ModelBase, ModelLineage
 from utilities import resolve_path
+
+from ..train_me import train_me
 
 MAX_IMAGES = 5000
 
@@ -27,7 +29,9 @@ class ImageSearch(ModelBase, LoggerMixin):
         self.model_lineage = ModelLineage(self, config.paths.artifacts)
 
     def clean_data(self):
-        df = self.data_engine.get_csv_data(self.config.paths.data / "images" / "metadata" / "images.csv.gz")
+        df = self.data_engine.get_csv_data(
+            self.config.paths.data / "images" / "metadata" / "images.csv.gz"
+        )
         mask = (df["height"] >= 1000) & (df["width"] >= 1000)
         df = df.loc[mask, :]
         images_root = self.config.paths.data / "images" / "small"
@@ -35,47 +39,29 @@ class ImageSearch(ModelBase, LoggerMixin):
         self.logger.info(f"Found {len(self._image_paths)} images after filtering.")
 
     def analyze_data(self) -> None:
-        heights, widths = [], []
-        for p in self._image_paths.iloc[:500]:
-            try:
-                with Image.open(p) as img:
-                    w, h = img.size
-                widths.append(w)
-                heights.append(h)
-            except Exception:
-                continue
+        import seaborn as sns
+
+        extensions = self._image_paths.str.rsplit(".", n=1).str[-1].str.lower()
+        ext_counts = extensions.value_counts(normalize=True)
         analysis_raw_path = self._analysis_path / "raw"
 
         @resolve_path(lambda: analysis_raw_path)
         def _save():
-            fig, ax = plt.subplots(figsize=(8, 5))
-            ax.hist(heights, bins=40, color="steelblue", edgecolor="white")
-            ax.set_title(f"Image height distribution (sample n={len(heights)})")
-            ax.set_xlabel("Height (px)")
+            fig, ax = plt.subplots(figsize=(6, 4))
+            sns.barplot(x=ext_counts.index.tolist(), y=ext_counts.values, ax=ax)
+            ax.set_title("Percentage of image format distribution")
+            ax.set_xlabel("Format")
+            ax.set_ylabel("Percentage")
             fig.tight_layout()
-            fig.savefig("image_height_distribution.png", dpi=150)
-            plt.close(fig)
-
-            fig, ax = plt.subplots(figsize=(8, 5))
-            ax.hist(widths, bins=40, color="darkorange", edgecolor="white")
-            ax.set_title(f"Image width distribution (sample n={len(widths)})")
-            ax.set_xlabel("Width (px)")
-            fig.tight_layout()
-            fig.savefig("image_width_distribution.png", dpi=150)
-            plt.close(fig)
-
-            fig, ax = plt.subplots(figsize=(4, 4))
-            ax.bar(["Filtered images"], [len(self._image_paths)], color="mediumseagreen")
-            ax.set_title("Image count after filtering (h≥1000, w≥1000)")
-            ax.set_ylabel("Count")
-            fig.tight_layout()
-            fig.savefig("image_count.png", dpi=150)
+            fig.savefig("image_format_distribution.png", dpi=150)
             plt.close(fig)
 
         _save()
-        self.logger.info("analyze_data: saved 3 plots.")
+        self.logger.info("analyze_data: saved 1 plot.")
 
     def analyze_features(self) -> None:
+        import seaborn as sns
+
         pca = PCA(n_components=2, random_state=0)
         coords = np.asarray(pca.fit_transform(self._embeddings))
         explained = pca.explained_variance_ratio_.sum()
@@ -84,8 +70,18 @@ class ImageSearch(ModelBase, LoggerMixin):
         @resolve_path(lambda: analysis_features_path)
         def _save():
             fig, ax = plt.subplots(figsize=(9, 7))
-            ax.scatter(coords[:, 0], coords[:, 1], s=4, alpha=0.4, c="royalblue", rasterized=True)
-            ax.set_title(f"Embedding PCA 2D scatter (n={len(coords)}, explained variance: {explained:.1%})")
+            sns.scatterplot(
+                x=coords[:, 0],
+                y=coords[:, 1],
+                s=4,
+                alpha=0.4,
+                color="royalblue",
+                rasterized=True,
+                ax=ax,
+            )
+            ax.set_title(
+                f"Embedding PCA 2D scatter (n={len(coords)}, explained variance: {explained:.1%})"
+            )
             ax.set_xlabel("PC1")
             ax.set_ylabel("PC2")
             fig.tight_layout()
@@ -137,7 +133,9 @@ class ImageSearch(ModelBase, LoggerMixin):
         self._indexed_paths = np.load(path / "indexed_paths.npy", allow_pickle=True)
         self._model = SentenceTransformer("clip-ViT-B-32", device=self.config.device)
         metadata_file = path / f"{path.name}_metadata.json"
-        metadata = json.loads(metadata_file.read_text()) if metadata_file.exists() else {}
+        metadata = (
+            json.loads(metadata_file.read_text()) if metadata_file.exists() else {}
+        )
         self._query_params: dict = metadata.get("query_params", {"n_neighbors": 9})
 
     def interact(self):
@@ -161,8 +159,6 @@ class ImageSearch(ModelBase, LoggerMixin):
         return [self._indexed_paths[i] for i in indices[0]]
 
     def show(self, image_paths: list[str]) -> None:
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.axes_grid1 import ImageGrid
 
         fig = plt.figure(figsize=(12, 4))
         grid = ImageGrid(fig, 111, nrows_ncols=(1, len(image_paths)), axes_pad=0.1)
@@ -182,7 +178,9 @@ class ImageSearch(ModelBase, LoggerMixin):
 
         with tqdm(total=MAX_IMAGES, desc="Vectorizing images") as pbar:
             start_idx = 0
-            for batch in self.data_engine.get_images_batch(image_paths.iloc[:MAX_IMAGES], batch_size):
+            for batch in self.data_engine.get_images_batch(
+                image_paths.iloc[:MAX_IMAGES], batch_size
+            ):
                 end_idx = min(start_idx + len(batch), MAX_IMAGES)
                 embeddings[start_idx:end_idx] = model.encode(batch)
                 start_idx = end_idx

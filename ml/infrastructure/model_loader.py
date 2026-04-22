@@ -43,7 +43,7 @@ def _find_train_me_class_name(model_file: Path) -> str:
     return candidates[0]
 
 
-def _fqn(model_file: Path) -> str | None:
+def _import_path(model_file: Path) -> str | None:
     abs_path = model_file.resolve()
     for raw in sys.path:
         base = Path(os.getcwd() if not raw else raw).resolve()
@@ -60,11 +60,11 @@ def load_model_class(model_name: str, models_root: Path):
     class_name = _find_train_me_class_name(model_file)
     logger.info(f"Loading {class_name} from {model_file}")
 
-    fqn = _fqn(model_file)
-    if fqn and "." in fqn:
-        module = importlib.import_module(fqn)
+    import_path = _import_path(model_file)
+    if import_path and "." in import_path:
+        module = importlib.import_module(import_path)
     else:
-        name = fqn or model_file.stem
+        name = import_path or model_file.stem
         spec = importlib.util.spec_from_file_location(name, model_file)
         assert spec is not None
         module = importlib.util.module_from_spec(spec)
