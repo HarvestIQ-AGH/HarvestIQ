@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import Enum, auto
 
 
 class Mode(Enum):
-    DEFAULT = "default"
-    TEST = "test"
+    DEFAULT = auto()
+    TEST = auto()

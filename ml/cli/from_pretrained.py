@@ -10,7 +10,8 @@ def _find_latest_version(model_name: str, artifacts_path: Path) -> Path | None:
     if not model_dir.exists():
         return None
     versions = [
-        d for d in model_dir.iterdir()
+        d
+        for d in model_dir.iterdir()
         if d.is_dir() and d.name.startswith(f"{model_name}_v")
     ]
     if not versions:

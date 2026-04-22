@@ -1,7 +1,8 @@
+from pathlib import Path
+
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 import pandas as pd
 import seaborn as sns
 from feature_engine.encoding import RareLabelEncoder
@@ -21,10 +22,10 @@ from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
 from infrastructure import logger
 from infrastructure.local import LocalConfiguration
-from ..model_base import ModelBase
-from ..model_lineage import ModelLineage
-from ..train_me import train_me
+from models import ModelBase, ModelLineage
 from utilities import resolve_path
+
+from ..train_me import train_me
 
 
 @train_me
@@ -61,29 +62,38 @@ class RegressionModel(ModelBase):
         @resolve_path(lambda: analysis_raw_path)
         def _save():
             fig, ax = plt.subplots(figsize=(8, 5))
-            sns.histplot(target, bins=50, kde=True, ax=ax)
-            ax.set_title("SalePrice distribution (log1p)")
-            ax.set_xlabel("log1p(SalePrice)")
+            ax.scatter(raw["GrLivArea"], np.expm1(target), alpha=0.3, s=10)
+            ax.set_title("House area vs price")
+            ax.set_xlabel("GrLivArea")
+            ax.set_ylabel("SalePrice")
             fig.tight_layout()
-            fig.savefig("saleprice_distribution.png", dpi=150)
+            fig.savefig("grlivarea_vs_saleprice.png", dpi=150)
             plt.close(fig)
 
-            corr_data = raw[self._numerical_features.tolist()].copy()
-            corr_data["SalePrice_log1p"] = target.values
-            corr = corr_data.corr()
-            top_cols = (
-                corr["SalePrice_log1p"]
-                .abs()
-                .sort_values(ascending=False)
-                .iloc[1:16]
-                .index.tolist()
+            mean = target.mean()
+            median = target.median()
+            fig, ax = plt.subplots(figsize=(8, 5))
+            ax.hist(target, bins=50)
+            ax.axvline(
+                mean,
+                color="orange",
+                linestyle="dashed",
+                linewidth=2,
+                label=f"Mean: {mean:.3f}",
             )
-            sub_corr = corr.loc[top_cols + ["SalePrice_log1p"], top_cols + ["SalePrice_log1p"]]
-            fig, ax = plt.subplots(figsize=(12, 10))
-            sns.heatmap(sub_corr, annot=True, fmt=".2f", cmap="coolwarm", linewidths=0.5, ax=ax)
-            ax.set_title("Correlation heatmap — top numerical features vs SalePrice")
+            ax.axvline(
+                median,
+                color="red",
+                linestyle="dashed",
+                linewidth=2,
+                label=f"Median: {median:.3f}",
+            )
+            ax.set_title("House price (log1p)")
+            ax.set_xlabel("log1p(SalePrice)")
+            ax.set_ylabel("Count")
+            ax.legend()
             fig.tight_layout()
-            fig.savefig("correlation_heatmap.png", dpi=150)
+            fig.savefig("saleprice_distribution.png", dpi=150)
             plt.close(fig)
 
         _save()
@@ -91,17 +101,21 @@ class RegressionModel(ModelBase):
 
     def analyze_features(self) -> None:
         analysis_features_path = self._analysis_path / "features"
-        X_transformed = self._column_transformer.fit_transform(self._X_train_raw, self._y_train)
-        numerical_cols = [c for c in X_transformed.columns if not c.startswith("categorical__")][:10]
+        X_transformed = self._column_transformer.fit_transform(
+            self._X_train_raw, self._y_train
+        )
+        numerical_cols = [
+            c for c in X_transformed.columns if not c.startswith("categorical__")
+        ]
 
         @resolve_path(lambda: analysis_features_path)
         def _save():
-            fig, ax = plt.subplots(figsize=(14, 5))
-            X_transformed[numerical_cols].boxplot(ax=ax, rot=45)
-            ax.set_title("Numerical feature distributions after pipeline transform (train set)")
-            ax.set_ylabel("Scaled value")
+            correlation_matrix = X_transformed[numerical_cols].corr()
+            fig, ax = plt.subplots(figsize=(12, 10))
+            sns.heatmap(correlation_matrix, ax=ax)
+            ax.set_title("Correlation Heatmap")
             fig.tight_layout()
-            fig.savefig("numerical_feature_distributions.png", dpi=150)
+            fig.savefig("correlation_heatmap.png", dpi=150)
             plt.close(fig)
 
         _save()
