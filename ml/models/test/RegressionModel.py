@@ -1,5 +1,6 @@
 import joblib
 import numpy as np
+from pathlib import Path
 import pandas as pd
 from feature_engine.encoding import RareLabelEncoder
 from feature_engine.outliers import Winsorizer
@@ -16,21 +17,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
+from infrastructure.local.local_config import LocalConfiguration
 from infrastructure.logger import logger
-from models.ModelBase import ModelBase
-from models.ModelLineage import ModelLineage
+from models.model_base import ModelBase
+from models.model_lineage import ModelLineage
 from models.train_me import train_me
 from utilities.path_resolver import resolve_path
 
 
 @train_me
 class RegressionModel(ModelBase):
-    def __init__(self, data_engine) -> None:
-        super().__init__(data_engine)
-        self.model_lineage = ModelLineage(self)
+    def __init__(self, data_engine, config: LocalConfiguration) -> None:
+        super().__init__(data_engine, config)
+        self.model_lineage = ModelLineage(self, config.paths.artifacts)
 
     def clean_data(self):
-        df = super()._load_data()
+        df = self.data_engine.get_csv_data(self.config.paths.data / "ames.csv")
 
         df.columns = df.columns.str.replace(".", "", regex=False)
         df = df.drop(["Order", "PID"], axis="columns")
@@ -110,6 +112,12 @@ class RegressionModel(ModelBase):
 
         _save()
 
+    def load_pretrained(self, path: Path):
+        self._column_transformer = joblib.load(path / "ames_transformer.joblib")
+        self._huber_reg = joblib.load(path / "price_estimator.joblib")
+        self._q_low = joblib.load(path / "low_price_estimator.joblib")
+        self._q_high = joblib.load(path / "high_price_estimator.joblib")
+
     def evaluate(self):
         X_test = self._column_transformer.transform(self._X_test_raw)
         X_train = self._column_transformer.transform(self._X_train_raw)
@@ -142,7 +150,9 @@ class RegressionModel(ModelBase):
             else:
                 d2_train = d2_pinball_score(yt_train, yp_train, alpha=q)
                 d2_test = d2_pinball_score(yt_test, yp_test, alpha=q)
-                logger.info(f"  D² pinball (q={q})  train={d2_train:.4f}  test={d2_test:.4f}")
+                logger.info(
+                    f"  D² pinball (q={q})  train={d2_train:.4f}  test={d2_test:.4f}"
+                )
 
     def _replace_na(self, df):
         def replace_na(df: pd.DataFrame, col: str, value) -> None:
