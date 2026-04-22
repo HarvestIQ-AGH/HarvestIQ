@@ -8,8 +8,11 @@ dependencies = [
     "feature-engine>=1.9.4",
     "numpy>=2.4.4",
     "pandas>=3.0.2",
+    "pillow>=12.2.0",
+    "pynndescent>=0.6.0",
     "pytest>=9.0.3",
     "requests>=2.33.1",
     "scikit-learn>=1.8.0",
+    "sentence-transformers>=5.4.1",
     "torch>=2.11.0",
 ]
