@@ -10,13 +10,12 @@ from pynndescent import NNDescent
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
-from infrastructure.data_engine import DataEngine
-from infrastructure.local.local_config import LocalConfiguration
-from infrastructure.logger import LoggerMixin
-from models.model_base import ModelBase
-from models.model_lineage import ModelLineage
-from models.train_me import train_me
-from utilities.path_resolver import resolve_path
+from infrastructure import DataEngine, LoggerMixin
+from infrastructure.local import LocalConfiguration
+from ..model_base import ModelBase
+from ..model_lineage import ModelLineage
+from ..train_me import train_me
+from utilities import resolve_path
 
 MAX_IMAGES = 5000
 
@@ -78,7 +77,7 @@ class ImageSearch(ModelBase, LoggerMixin):
 
     def analyze_features(self) -> None:
         pca = PCA(n_components=2, random_state=0)
-        coords = pca.fit_transform(self._embeddings)
+        coords = np.asarray(pca.fit_transform(self._embeddings))
         explained = pca.explained_variance_ratio_.sum()
         analysis_features_path = self._analysis_path / "features"
 

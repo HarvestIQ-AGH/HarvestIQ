@@ -1,7 +1,7 @@
 import shutil
 
-from infrastructure.local.local_config import DEFAULT_PATHS
-from infrastructure.logger import logger
+from infrastructure import logger
+from infrastructure.local import DEFAULT_PATHS
 
 
 def clean():

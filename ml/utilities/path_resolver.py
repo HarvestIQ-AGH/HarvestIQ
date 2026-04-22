@@ -1,7 +1,7 @@
 import os
 from functools import wraps
 
-from infrastructure.local.local_config import DEFAULT_PATHS, TEST_PATHS
+from infrastructure.local import DEFAULT_PATHS, TEST_PATHS
 
 
 def make_directories():

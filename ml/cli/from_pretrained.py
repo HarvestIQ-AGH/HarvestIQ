@@ -1,10 +1,8 @@
 import sys
 from pathlib import Path
 
-from infrastructure.data_engine import DataEngine
-from infrastructure.local.local_config import LocalConfiguration
-from infrastructure.logger import logger
-from infrastructure.model_loader import load_model_class
+from infrastructure import DataEngine, load_model_class, logger
+from infrastructure.local import LocalConfiguration
 
 
 def _find_latest_version(model_name: str, artifacts_path: Path) -> Path | None:

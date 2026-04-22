@@ -1,6 +1,6 @@
 import pytest
 
-from cli.visualize import visualize
+from cli import visualize
 
 
 def test_no_analysis_dir_exits(isolated_config):

@@ -1,7 +1,7 @@
 from enum import IntEnum
 
-from infrastructure.logger import logger
-from models.model_base import ModelBase
+from .logger import logger
+from models import ModelBase
 
 
 class Stage(IntEnum):

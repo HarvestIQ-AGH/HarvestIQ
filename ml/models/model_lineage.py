@@ -2,8 +2,8 @@ import json
 import os
 from pathlib import Path
 
-from models.model_base import ModelBase
-from utilities.path_resolver import resolve_path
+from .model_base import ModelBase
+from utilities import resolve_path
 
 
 class ModelLineage:
