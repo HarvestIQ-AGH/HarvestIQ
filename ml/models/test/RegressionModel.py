@@ -1,7 +1,9 @@
 import joblib
+import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 import pandas as pd
+import seaborn as sns
 from feature_engine.encoding import RareLabelEncoder
 from feature_engine.outliers import Winsorizer
 from feature_engine.selection import DropCorrelatedFeatures
@@ -50,6 +52,60 @@ class RegressionModel(ModelBase):
         self._X_train_raw, self._X_test_raw, self._y_train, self._y_test = (
             train_test_split(df, y, test_size=0.3, random_state=0)
         )
+
+    def analyze_data(self) -> None:
+        raw = pd.concat([self._X_train_raw, self._X_test_raw])
+        target = pd.concat([self._y_train, self._y_test])
+        analysis_raw_path = self._analysis_path / "raw"
+
+        @resolve_path(lambda: analysis_raw_path)
+        def _save():
+            fig, ax = plt.subplots(figsize=(8, 5))
+            sns.histplot(target, bins=50, kde=True, ax=ax)
+            ax.set_title("SalePrice distribution (log1p)")
+            ax.set_xlabel("log1p(SalePrice)")
+            fig.tight_layout()
+            fig.savefig("saleprice_distribution.png", dpi=150)
+            plt.close(fig)
+
+            corr_data = raw[self._numerical_features.tolist()].copy()
+            corr_data["SalePrice_log1p"] = target.values
+            corr = corr_data.corr()
+            top_cols = (
+                corr["SalePrice_log1p"]
+                .abs()
+                .sort_values(ascending=False)
+                .iloc[1:16]
+                .index.tolist()
+            )
+            sub_corr = corr.loc[top_cols + ["SalePrice_log1p"], top_cols + ["SalePrice_log1p"]]
+            fig, ax = plt.subplots(figsize=(12, 10))
+            sns.heatmap(sub_corr, annot=True, fmt=".2f", cmap="coolwarm", linewidths=0.5, ax=ax)
+            ax.set_title("Correlation heatmap — top numerical features vs SalePrice")
+            fig.tight_layout()
+            fig.savefig("correlation_heatmap.png", dpi=150)
+            plt.close(fig)
+
+        _save()
+        logger.info("analyze_data: saved 2 plots.")
+
+    def analyze_features(self) -> None:
+        analysis_features_path = self._analysis_path / "features"
+        X_transformed = self._column_transformer.fit_transform(self._X_train_raw, self._y_train)
+        numerical_cols = [c for c in X_transformed.columns if not c.startswith("categorical__")][:10]
+
+        @resolve_path(lambda: analysis_features_path)
+        def _save():
+            fig, ax = plt.subplots(figsize=(14, 5))
+            X_transformed[numerical_cols].boxplot(ax=ax, rot=45)
+            ax.set_title("Numerical feature distributions after pipeline transform (train set)")
+            ax.set_ylabel("Scaled value")
+            fig.tight_layout()
+            fig.savefig("numerical_feature_distributions.png", dpi=150)
+            plt.close(fig)
+
+        _save()
+        logger.info("analyze_features: saved 1 plot.")
 
     def feature_engineeeing(self):
         numerical_pipeline = Pipeline(

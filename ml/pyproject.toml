@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "feature-engine>=1.9.4",
+    "matplotlib>=3.10",
+    "seaborn>=0.13",
     "numpy>=2.4.4",
     "pandas>=3.0.2",
     "pillow>=12.2.0",
@@ -36,3 +38,11 @@ triton-rocm = [
 name = "pytorch-rocm"
 url = "https://download.pytorch.org/whl/rocm7.2"
 explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "slow: requires real dataset files, runs full model pipeline",
+    "integration: filesystem-heavy or requires pretrained artifacts",
+]
