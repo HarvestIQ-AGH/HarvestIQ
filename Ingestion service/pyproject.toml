@@ -1,0 +1,31 @@
+[project]
+name = "harvestiq-ingestion-mvp"
+version = "0.1.0"
+description = "HarvestIQ automated satellite ingestion MVP"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "requests>=2.31.0",
+  "PyYAML>=6.0.1",
+  "rasterio>=1.3.10",
+  "shapely>=2.0.0",
+  "planetary-computer>=1.0.0",
+  "rich",
+]
+
+[project.optional-dependencies]
+ui = [
+  "streamlit>=1.34.0",
+  "folium>=0.16.0",
+  "streamlit-folium>=0.20.0",
+]
+
+[project.scripts]
+ingestion = "ingestion.ingest:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ingestion", "ingestion.providers", "ingestion_ui"]

@@ -1,0 +1,6 @@
+Landsat scenes that meet a cloud threshold (e.g., 20%) may still cover only part of the AOI.
+
+Possible improvements:
+- Build a mosaic from multiple scenes (by cloud threshold, time window, or scene count) to increase AOI coverage.
+- Add `"intersects": AOI_polygon` to query configuration for stricter spatial filtering.
+- Use a better selection score combining cloud cover, AOI overlap percentage, and off-nadir angle.

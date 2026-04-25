@@ -1,0 +1,38 @@
+Metadata-Version: 2.4
+Name: harvestiq-ingestion-mvp
+Version: 0.1.0
+Summary: HarvestIQ automated satellite ingestion MVP
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.31.0
+Requires-Dist: PyYAML>=6.0.1
+Requires-Dist: rasterio>=1.3.10
+Requires-Dist: shapely>=2.0.0
+Requires-Dist: planetary-computer>=1.0.0
+Requires-Dist: rich
+
+# HarvestIQ Satellite Ingestion MVP
+
+HarvestIQ Ingestion MVP is a CLI pipeline that acquires Sentinel and Landsat scenes from STAC, downloads required bands, clips to AOI, and stores deterministic metadata/provenance.
+
+Core capabilities:
+- AOI + date range + cloud filtering
+- source modes: `sentinel1|sentinel2|landsat8|landsat9|combined`
+- deterministic scene selection (overlap, cloud, quality, time)
+- local raw/bronze storage with `metadata.json`
+- automation-friendly exit codes
+
+Quick start:
+```bash
+python -m venv .venv
+. .venv/Scripts/activate
+pip install -e .
+python -m ingestion.ingest --source sentinel2 --aoi-file configs/aoi.geojson --start-date 2025-04-01 --end-date 2025-04-15 --max-cloud 20
+```
+
+Output:
+```text
+data/raw/<source>/<scene_id>/
+  <scene_id>_<asset>.*
+  metadata.json
+```

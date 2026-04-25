@@ -1,0 +1,8 @@
+source: combined
+sources: sentinel1,sentinel2,landsat8,landsat9
+aoi_file: configs/aoi.geojson
+start_date: "2025-04-01"
+end_date: "2025-04-15"
+max_cloud: 20
+output_dir: data/raw
+force: false
