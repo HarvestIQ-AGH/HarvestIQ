@@ -1,0 +1,18 @@
+{
+  "type": "Feature",
+  "properties": {
+    "name": "Krakow-bbox-area"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [19.85, 50.00],
+        [20.05, 50.00],
+        [20.05, 50.12],
+        [19.85, 50.12],
+        [19.85, 50.00]
+      ]
+    ]
+  }
+}
