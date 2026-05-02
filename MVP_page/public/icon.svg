@@ -1,0 +1,26 @@
+<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #166534; }
+      .fg { fill: #dcfce7; stroke: #dcfce7; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #052e16; }
+      .fg { fill: #86efac; stroke: #86efac; }
+    }
+  </style>
+  <rect class="bg" width="180" height="180" rx="38" />
+  <!-- Sprout: stem + paired leaves (HarvestIQ / agriculture) -->
+  <path
+    class="fg"
+    fill="none"
+    stroke-width="8"
+    stroke-linecap="round"
+    d="M90 128V76"
+  />
+  <path
+    class="fg"
+    stroke="none"
+    d="M90 76C68 76 52 58 48 36c20 4 34 22 42 40zm0 0c22 0 38-18 42-40-20 4-34 22-42 40z"
+  />
+</svg>
