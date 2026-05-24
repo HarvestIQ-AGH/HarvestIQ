@@ -18,6 +18,7 @@ dependencies = [
     "sentence-transformers>=5.4.1",
     "torch>=2.11.0",
     "triton-rocm==3.6.0; sys_platform == 'linux'",
+    "xgboost>=3.2.0",
 ]
 
 [tool.uv.sources]
