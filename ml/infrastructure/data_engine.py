@@ -1,3 +1,4 @@
+import sqlite3
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 
@@ -8,6 +9,10 @@ from PIL import Image
 class DataEngine:
     def get_csv_data(self, path: Path | str) -> pd.DataFrame:
         return pd.read_csv(path)
+
+    def get_sqlite_data(self, path: Path | str, table: str) -> pd.DataFrame:
+        with sqlite3.connect(path) as conn:
+            return pd.read_sql_query(f'SELECT * FROM "{table}"', conn)
 
     def get_images_batch(
         self,
