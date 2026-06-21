@@ -7,3 +7,4 @@ resources/
 .claude
 __pycache__/
 CLAUDE.md
+reports/
