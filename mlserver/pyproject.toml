@@ -1,0 +1,19 @@
+[project]
+name = "mlserver"
+version = "0.1.0"
+description = "FastAPI service for HarvestIQ yield predictions."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "joblib>=1.4.0",
+    "numpy>=2.0.0",
+    "pandas>=2.2.0",
+    "pydantic>=2.10.0",
+    "scikit-learn>=1.8.0,<1.9.0",
+    "uvicorn[standard]>=0.30.0",
+    "xgboost>=2.1.0",
+]
+
+[project.scripts]
+mlserver = "app.main:run"
